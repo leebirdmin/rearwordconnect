@@ -1,0 +1,543 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>모두의 끝말잇기</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 25px 15px;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  color: #554568;
+  background: linear-gradient(135deg, #ffe4f2, #e9e0ff);
+}
+
+.container {
+  max-width: 680px;
+  margin: 25px auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+header h1 {
+  color: #b35bc4;
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+header p {
+  color: #987ca8;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 25px #aa80bb30;
+}
+
+.current {
+  background: linear-gradient(135deg, #fff0fa, #f2edff);
+  border-radius: 20px;
+  padding: 23px;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.current small {
+  color: #a17eae;
+}
+
+#lastWord {
+  font-size: 40px;
+  color: #bd5dbf;
+  margin: 13px 0;
+  word-break: break-all;
+}
+
+#guide {
+  color: #987ca8;
+  font-size: 14px;
+}
+
+input {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #eadcf4;
+  border-radius: 13px;
+  font-size: 16px;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+input:focus {
+  border-color: #bd80d1;
+}
+
+button {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(90deg, #e88dc9, #a77be4);
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+#message {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 15px;
+  min-height: 24px;
+}
+
+.error {
+  color: #e34e72;
+}
+
+.success {
+  color: #37a778;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.list-header h2 {
+  font-size: 19px;
+}
+
+#count {
+  background: #f3e8ff;
+  color: #9962c3;
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.word-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: #faf6ff;
+  padding: 13px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+}
+
+.number {
+  background: #eadcff;
+  color: #9562bc;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.word-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.word-info strong {
+  display: block;
+  font-size: 19px;
+  overflow-wrap: anywhere;
+}
+
+.word-info small {
+  display: block;
+  color: #aa96b5;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.empty {
+  padding: 30px 10px;
+  text-align: center;
+  color: #b4a2bd;
+}
+
+.status {
+  font-size: 12px;
+  color: #a58caf;
+  text-align: center;
+  margin-top: 13px;
+}
+
+.footer {
+  text-align: center;
+  color: #a48db1;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 25px 0;
+}
+
+@media(max-width: 450px) {
+  header h1 {
+    font-size: 27px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <h1>🌸 모두의 끝말잇기 🌸</h1>
+  <p>친구들과 함께 이어가는 실시간 끝말잇기!</p>
+</header>
+
+<div class="card">
+
+  <div class="current">
+    <small>✨ 현재 마지막 단어</small>
+    <h2 id="lastWord">첫 단어를 기다리는 중!</h2>
+    <div id="guide">첫 단어는 자유롭게 입력하세요.</div>
+  </div>
+
+  <form
+    id="wordForm"
+    action="https://script.google.com/macros/s/AKfycbxB_hAbZewcJAvS-qRzWZyCPIxMfECxV2gIQiSA4JM7eUXUP2wOwpERJYCDcs-ScR6H/exec"
+    method="POST"
+    target="submitFrame"
+  >
+
+    <input
+      type="text"
+      id="nickname"
+      name="nickname"
+      placeholder="닉네임을 입력하세요"
+      maxlength="20"
+      required
+    >
+
+    <input
+      type="text"
+      id="word"
+      name="word"
+      placeholder="이어갈 단어를 입력하세요!"
+      autocomplete="off"
+      required
+    >
+
+    <button id="submitButton" type="submit">
+      💗 단어 이어 붙이기!
+    </button>
+
+  </form>
+
+  <iframe
+    name="submitFrame"
+    id="submitFrame"
+    style="display:none"
+  ></iframe>
+
+  <div id="message"></div>
+
+  <div class="status" id="status">
+    🔄 서버 연결 중...
+  </div>
+
+</div>
+
+<div class="card">
+
+  <div class="list-header">
+    <h2>📚 끝말잇기 기록</h2>
+    <span id="count">0개</span>
+  </div>
+
+  <div id="wordList">
+    <div class="empty">
+      아직 등록된 단어가 없어요 🌷
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  💜 사전에 없는 단어도 가능!<br>
+  💜 한방단어도 가능!<br>
+  💜 끝말만 이어지면 누구나 참여 가능!
+</div>
+
+</div>
+
+<script>
+
+// =====================================
+// 1. Google Apps Script 주소 입력
+// =====================================
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxB_hAbZewcJAvS-qRzWZyCPIxMfECxV2gIQiSA4JM7eUXUP2wOwpERJYCDcs-ScR6H/exec";
+
+const form = document.getElementById("wordForm");
+
+form.action = SCRIPT_URL;
+
+let busy = false;
+let words = [];
+
+// =====================================
+// 2. 닉네임 기억하기
+// =====================================
+
+const nicknameInput =
+  document.getElementById("nickname");
+
+nicknameInput.value =
+  localStorage.getItem("wordChainNickname") || "";
+
+// =====================================
+// 3. 메시지 표시
+// =====================================
+
+function showMessage(text, type) {
+  const message = document.getElementById("message");
+
+  message.textContent = text;
+  message.className = type;
+}
+
+// =====================================
+// 4. 단어 목록 화면에 표시
+// =====================================
+
+function renderWords(data) {
+  words = data;
+
+  const list = document.getElementById("wordList");
+  const lastWord = document.getElementById("lastWord");
+  const guide = document.getElementById("guide");
+
+  document.getElementById("count").textContent =
+    words.length + "개";
+
+  if (words.length === 0) {
+    lastWord.textContent = "첫 단어를 기다리는 중!";
+    guide.textContent = "첫 단어는 자유롭게 입력하세요.";
+
+    list.innerHTML =
+      '<div class="empty">첫 번째 단어를 입력해 주세요! 🌷</div>';
+
+    return;
+  }
+
+  const latest = words[words.length - 1].word;
+
+  lastWord.textContent = latest;
+
+  const letters = Array.from(latest);
+
+  guide.textContent =
+    "'" + letters[letters.length - 1] +
+    "'로 시작하는 단어를 입력하세요!";
+
+  list.innerHTML = "";
+
+  words.slice().reverse().forEach((item, index) => {
+
+    const div = document.createElement("div");
+    div.className = "word-item";
+
+    const number = document.createElement("span");
+    number.className = "number";
+    number.textContent = words.length - index;
+
+    const info = document.createElement("div");
+    info.className = "word-info";
+
+    const word = document.createElement("strong");
+    word.textContent = item.word;
+
+    const detail = document.createElement("small");
+    detail.textContent =
+      item.nickname + " · " + item.time;
+
+    info.appendChild(word);
+    info.appendChild(detail);
+
+    div.appendChild(number);
+    div.appendChild(info);
+
+    list.appendChild(div);
+  });
+}
+
+// =====================================
+// 5. 서버에서 단어 목록 불러오기
+// =====================================
+
+function loadWords() {
+
+  const callbackName =
+    "__wordChainCallback";
+
+  window[callbackName] = function(data) {
+
+    if (!Array.isArray(data)) {
+      document.getElementById("status").textContent =
+        "🔴 데이터를 불러오지 못했습니다.";
+      return;
+    }
+
+    renderWords(data);
+
+    document.getElementById("status").textContent =
+      "🟢 서버 연결 완료 · 2초마다 자동 업데이트";
+  };
+
+  const oldScript =
+    document.getElementById("dataScript");
+
+  if (oldScript) {
+    oldScript.remove();
+  }
+
+  const script = document.createElement("script");
+
+  script.id = "dataScript";
+
+  script.src =
+    SCRIPT_URL +
+    "?action=getWords&callback=" +
+    callbackName +
+    "&_=" + Date.now();
+
+  script.onerror = function() {
+    document.getElementById("status").textContent =
+      "🔴 서버 연결 실패! 웹 앱 주소를 확인하세요.";
+  };
+
+  document.body.appendChild(script);
+}
+
+// =====================================
+// 6. 단어 제출
+// =====================================
+
+form.addEventListener("submit", function(event) {
+
+  if (busy) {
+    event.preventDefault();
+    return;
+  }
+
+  const nickname = nicknameInput.value.trim();
+  const word = document.getElementById("word").value.trim();
+
+  if (!nickname || !word) {
+    event.preventDefault();
+
+    showMessage(
+      "닉네임과 단어를 모두 입력해 주세요!",
+      "error"
+    );
+
+    return;
+  }
+
+  busy = true;
+
+  localStorage.setItem(
+    "wordChainNickname",
+    nickname
+  );
+
+  document.getElementById("submitButton").disabled = true;
+
+  showMessage("단어를 확인하고 있어요...", "");
+
+});
+
+// =====================================
+// 7. 서버 제출 결과 받기
+// =====================================
+
+window.addEventListener("message", function(event) {
+
+  const result = event.data;
+
+  if (
+    !result ||
+    typeof result !== "object" ||
+    typeof result.success !== "boolean" ||
+    typeof result.message !== "string"
+  ) {
+    return;
+  }
+
+  busy = false;
+
+  document.getElementById("submitButton").disabled = false;
+
+  if (result.success) {
+
+    document.getElementById("word").value = "";
+
+    showMessage(
+      result.message,
+      "success"
+    );
+
+    loadWords();
+
+  } else {
+
+    showMessage(
+      "⚠️ " + result.message,
+      "error"
+    );
+
+    loadWords();
+
+  }
+
+});
+
+// =====================================
+// 8. 처음 실행 및 자동 업데이트
+// =====================================
+
+loadWords();
+
+setInterval(loadWords, 2000);
+
+</script>
+
+</body>
+</html>
