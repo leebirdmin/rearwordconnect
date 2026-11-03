@@ -402,12 +402,39 @@ function renderWords(data) {
 // 5. 서버에서 단어 목록 불러오기
 // =====================================
 
+let loadingWords = false;
+let requestNumber = 0;
+
 function loadWords() {
 
+  // 이전 요청이 진행 중이면 중복 요청하지 않음
+  if (loadingWords) return;
+
+  loadingWords = true;
+
   const callbackName =
-    "__wordChainCallback";
+    "__wordChainCallback_" + Date.now() + "_" + (++requestNumber);
+
+  const script = document.createElement("script");
+
+  let finished = false;
+
+  function finish() {
+    if (finished) return;
+    finished = true;
+    loadingWords = false;
+    script.remove();
+
+    try {
+      delete window[callbackName];
+    } catch (e) {
+      window[callbackName] = undefined;
+    }
+  }
 
   window[callbackName] = function(data) {
+
+    finish();
 
     if (!Array.isArray(data)) {
       document.getElementById("status").textContent =
@@ -421,16 +448,12 @@ function loadWords() {
       "🟢 서버 연결 완료 · 2초마다 자동 업데이트";
   };
 
-  const oldScript =
-    document.getElementById("dataScript");
+  script.onerror = function() {
+    finish();
 
-  if (oldScript) {
-    oldScript.remove();
-  }
-
-  const script = document.createElement("script");
-
-  script.id = "dataScript";
+    document.getElementById("status").textContent =
+      "🔴 서버 응답 오류! 주소와 배포 상태를 확인해 주세요.";
+  };
 
   script.src =
     SCRIPT_URL +
@@ -438,13 +461,19 @@ function loadWords() {
     callbackName +
     "&_=" + Date.now();
 
-  script.onerror = function() {
-    document.getElementById("status").textContent =
-      "🔴 서버 연결 실패! 웹 앱 주소를 확인하세요.";
-  };
-
   document.body.appendChild(script);
+
+  // 10초 동안 응답이 없으면 요청 종료
+  setTimeout(function() {
+    if (!finished) {
+      finish();
+
+      document.getElementById("status").textContent =
+        "🟠 서버 응답 시간이 초과되었습니다.";
+    }
+  }, 10000);
 }
+
 
 // =====================================
 // 6. 단어 제출
@@ -484,6 +513,7 @@ form.addEventListener("submit", function(event) {
 
 });
 
+
 // =====================================
 // 7. 서버 제출 결과 받기
 // =====================================
@@ -509,25 +539,18 @@ window.addEventListener("message", function(event) {
 
     document.getElementById("word").value = "";
 
-    showMessage(
-      result.message,
-      "success"
-    );
-
-    loadWords();
+    showMessage(result.message, "success");
 
   } else {
 
-    showMessage(
-      "⚠️ " + result.message,
-      "error"
-    );
-
-    loadWords();
+    showMessage("⚠️ " + result.message, "error");
 
   }
 
+  loadWords();
+
 });
+
 
 // =====================================
 // 8. 처음 실행 및 자동 업데이트
